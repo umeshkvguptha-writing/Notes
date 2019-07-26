@@ -1,1 +1,144 @@
 
+1) Can Enum implement interface in Java?
+	Yes, Enum can implement interface in Java. Since enum is a type, similar to class and interface, it can implement interface. This gives a lot of flexibility to use Enum as specialized implementation in some cases
+
+2) Can Enum extends class in Java?
+	No, Enum can not extend class in Java. Surprised, because I just said it's a type like a class or interface in Java. Well, this is why this question is a good follow-up question of previous Enum interview question. Since all Enum by default extend abstract base class java.lang.Enum, obviously they can not extend another class, because Java doesn't support multiple inheritance for classes. Because of extending java.lang.Enum class, all enum gets methods like ordinal(), values() or valueOf().
+
+3) How do you create Enum without any instance? Is it possible without compile time error?
+	This is one of those tricky Java question, which Interviewer love to ask. Since Enum is viewed as a collection of well defined fixed number of instances e.g. Days of Week, Month in a Year, having an Enum without any instance, may seems awkward. But yes, you can create Enum without any instance in Java, say for creating a utility class. This is another innovative way of using Enum in Java. Here is the code
+
+	public enum MessageUtil{
+		;  // required to avoid compiler error, also signifies no instance
+
+		public static boolean isValid() {
+				throw new UnsupportedOperationException("Not supported yet.");
+		}
+}
+
+4) Can we override toString() method for Enum? What happens if we don't?
+	Ofcourse you can override toString in Enum, as like any other class it also extends java.lang.Object and has toString() method available, but even if you don't override, you will not going to regret much, because abstract base class of enum does that for you and return name, which is name of the enum instance itself. here is the code of toString() method from Enum class 
+
+	public enum EnumClass{
+		DUMMY("DUMMY NAME"),
+		BUMMY("BUMMY NAME");
+
+		private String value;
+
+		EnumClass(String value){
+		this.value = value;
+		}
+
+		public static void main(String[] args){
+			System.out.println(EnumClass.DUMMY); // Prints DUMMY
+		}
+	}
+5) Can we create instance of Enum outside of Enum itself? If Not, Why?
+	No, you can not create enum instances outside of Enum boundry, because Enum doesn't have any public constructor, and compiler doesn't allow you to provide any public constructor in Enum. Since compiler generates lot of code in response to enum type declaration, it doesn’t allow public constructors inside Enum, which enforces declaring enum instances inside Enum itself.
+
+
+6) Can we declare Constructor inside Enum in Java?
+	This is asked along with previous question on Java Enum. Yes, you can, but remember you can only declare either private or package-private constructor inside enum. public and protected constructors are not permitted inside enum.
+
+7) What is difference in comparing Enum with == and equals() method?
+	Until you have solid knowledge of Enum in Java, It can be difficult to answer these question with confidence. By the way unlike comparing String in Java, you can use both == and equals() method to compare Enum, they will produce same result because equals() method of Java.lang.Enum internally uses == to compare enum in Java. Since every Enum in Java implicitly extends java.lang.Enum ,and since equals() method is declared final, there is no chance of overriding equals method in user defined enum. If you are not just checking whether two enum are equal or not, and rather interested in order of different instance of Enum, than you can use compareTo() method of enum to compare two enums. Java.lang.Enum implements Comparable interface and implements compareTo() method. Natural order of enum is defined by the order they are declared in Java code and same order is returned by ordinal() method.
+	
+	compareTo(), hascode(), ordinal() defined final in java.lang.enum class so we cannot override
+	
+	use == instead of equals because it provode type safety , avoid null pointer exception and to gain performance
+	
+8) What does ordinal() method do in Enum?
+	Ordinal method returns the order in which Enum instance are declared inside Enum. For example in a DayOfWeek Enum, you can declare days in order they come e.g.
+
+	public enum DayOfWeek{
+	  MONDAY, TUESDAY, WEDNESDAY, THURSDAY, FRIDAY, SATURDAY, SUNDAY;
+	}
+
+	here if we call DayOfWeek.MONDAY.ordinal() it will return 0, which means it's the first instance. This ordering can be very useful to represent actual real world ordering i.e. declaring TUESDAY after MONDAY, ensures that it came after MONDAY and before WEDNESDAY. Similarly you can use enum to represent Month of year in the order they come e.g. FEBRUARY after JANUARY and before MARCH. All user defined enum inherit this method from java.lang.Enum abstract class, and it's set by compiler, when it internally call protected constructor of java.lang.Enum, which accepts name and ordinal.
+
+ 9) Can we use Enum with TreeSet or TreeMap in Java?
+	This is really interesting question on Java Enum, I would love to ask this to gauge knowledge of Enum. Until you know about java.lang.Enum and has looked it's code, it's more likely that you don't know that Enum implements Comparable interface, which is main requirement to be used in Sorted Collection like TreeSet and TreeMap. Since Enum by default impalement Comparable interface, they can be safely used inside TreeSet or TreeMap in Java.
+
+10) What is difference between ordinal() and compareTo() in Enum?
+	This is follow-up of previous question on Java Enum. Actually, compareTo() mimic ordering provided by ordinal() method, which is the natural order of Enum. In short Enum constraints are compared in the order they are declared. Also, worth remembering is that enum constants are only comparable to other enum constants of the same enum type. Comparing enum constant  of one type to another type will result in compiler error.
+
+11) Can we use Enum in switch case in Java?
+	Yes, you can use Enum in Switch case in Java, in fact that's one of the main advantage of using Enum. Since Enum instances are compile time constant, you can safely use them inside switch and case statements. 
+
+12) How to iterate over all instance of a Enum?
+	Well, if you have explored java.lang.Enum, you know that there is a values() method which returns an array of all enum constant. Since every enum type implicitly extends java.lang.Enum, they get this values() method. By using, this you can iterate over all enum constants of a certain type. 
+	
+13) What is advantage and disadvantage of using Enum as Singleton?
+	Enum provides you a quick shortcut to implement Singleton design pattern, and ever since it's mentioned in Effective Java, it's been a popular choice as well. On the face, Enum Singleton looks very promising and handles lot of stuff for you e.g. controlled instance creation, Serialization safety and on top of that, it’s extremely easy to create thread-safe Singleton using Enum. You don’t need to worry about double checked locking and volatile variable anymore.
+		Pros
+		1) Enum Singletons handled Serialization by themselves
+			Another problem with conventional Singletons are that once you implement serializable interface they are no longer remain Singleton because readObject() method always return a new instance just like constructor in Java. you can avoid that by using readResolve() method and discarding newly created instance by replacing with Singeton as shwon in below example :
+
+				//readResolve to prevent another instance of Singleton
+				private Object readResolve(){
+					return INSTANCE;
+				}
+
+			This can become even more complex if your Singleton Class maintain state, as you need to make them transient, but witn Enum Singleton, Serialization is guarnateed by JVM.
+
+		2) Creation of Enum instance is thread-safe
+			As stated in point 1 since creatino of Enum instance is thread-safe by default you don't need to worry about double checked locking.
+
+
+
+
+		3) Enum Singletons are easy to write
+			/**
+			* Singleton pattern example using Java Enumj
+			*/
+			public enum EasySingleton{
+				INSTANCE;
+			}
+
+			Old way (Singleton pattern example with Double checked Locking)
+			/**
+			* Singleton pattern example with Double checked Locking
+			*/
+			public class DoubleCheckedLockingSingleton{
+				 private volatile DoubleCheckedLockingSingleton INSTANCE;
+			  
+				 private DoubleCheckedLockingSingleton(){}
+			  
+				 public DoubleCheckedLockingSingleton getInstance(){
+					 if(INSTANCE == null){
+						synchronized(DoubleCheckedLockingSingleton.class){
+							//double checking Singleton instance
+							if(INSTANCE == null){
+								INSTANCE = new DoubleCheckedLockingSingleton();
+							}
+						}
+					 }
+					 return INSTANCE;
+				 }
+			}
+			
+			Old way(Singleton pattern example with static factory method)
+			/**
+			* Singleton pattern example with static factory method
+			*/
+
+			public class Singleton{
+				//initailzed during class loading
+				private static final Singleton INSTANCE = new Singleton();
+			  
+				//to prevent creating another instance of Singleton
+				private Singleton(){}
+
+				public static Singleton getSingleton(){
+					return INSTANCE;
+				}
+			}
+
+14) What is advantage of using Enum over enum int pattern and enum String pattern?
+	If you are coding from more than 5 years, and have coded in JDK 1.3 and 1.4, you must be familiar with Enum String pattern and enum int pattern, where we used public static final constants to represent collection of well known fixed number of things e.g. DayOfWeek. There was lot of problem with that approach e.g. you don't have a dedicated enum type, Since it's String variable, which represent day of week, it can take any arbitrary value. Similarly enum int pattern can take any arbitrary value, compiler doesn't prevent those. By using Enum, you get this type-safety and compiler checking for you. There are couple of good items on this topic in Effective Java, which is once again, must read for any Java developer.
+
+15) How to convert an String to Enum in Java?
+	Best way for converting Enum to String, is to declare a factory method inside Enum itself, which should take String argument and return an Enum.
+	in my case i created method can annotated with @jsoncreator so that while serializing it uses this methos to convert string to enum
+	
+	or You can create Enum from String by using Enum.valueOf() method. valueOf() is a static method which is added on every Enum class during compile time and it's implicitly available to all Enum along with values(), name() and cardinal() methods. In order to create Enum from String, String must be same as declared Enum otherwise, the code will throw "java.lang.IllegalArgumentException: No enum 
